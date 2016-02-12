@@ -1,8 +1,8 @@
 Rakefile
 README.md
 LICENSE
-lib/jwt.rb
-lib/jwt/json.rb
+lib/customjwt.rb
+lib/customjwt/json.rb
 spec/spec_helper.rb
-spec/jwt_spec.rb
+spec/customjwt_spec.rb
 Manifest

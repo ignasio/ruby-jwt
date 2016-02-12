@@ -1,8 +1,8 @@
 require 'spec_helper'
-require 'jwt'
-require 'jwt/decode'
+require 'customjwt'
+require 'customjwt/decode'
 
-describe JWT do
+describe CUSTOMJWT do
   let(:payload) { { 'user_id' => 'some@user.tld' } }
 
   let :data do
@@ -39,43 +39,43 @@ describe JWT do
     let(:alg) { 'none' }
 
     it 'should generate a valid token' do
-      token = JWT.encode payload, nil, alg
+      token = CUSTOMJWT.encode payload, nil, alg
 
       expect(token).to eq data['NONE']
     end
 
     it 'should decode a valid token' do
-      jwt_payload, header = JWT.decode data['NONE'], nil, false
+      customjwt_payload, header = CUSTOMJWT.decode data['NONE'], nil, false
 
       expect(header['alg']).to eq alg
-      expect(jwt_payload).to eq payload
+      expect(customjwt_payload).to eq payload
     end
   end
 
   %w(HS256 HS384 HS512).each do |alg|
     context "alg: #{alg}" do
       it 'should generate a valid token' do
-        token = JWT.encode payload, data[:secret], alg
+        token = CUSTOMJWT.encode payload, data[:secret], alg
 
         expect(token).to eq data[alg]
       end
 
       it 'should decode a valid token' do
-        jwt_payload, header = JWT.decode data[alg], data[:secret]
+        customjwt_payload, header = CUSTOMJWT.decode data[alg], data[:secret]
 
         expect(header['alg']).to eq alg
-        expect(jwt_payload).to eq payload
+        expect(customjwt_payload).to eq payload
       end
 
-      it 'wrong secret should raise JWT::DecodeError' do
+      it 'wrong secret should raise CUSTOMJWT::DecodeError' do
         expect do
-          JWT.decode data[alg], 'wrong_secret'
-        end.to raise_error JWT::DecodeError
+          CUSTOMJWT.decode data[alg], 'wrong_secret'
+        end.to raise_error CUSTOMJWT::DecodeError
       end
 
-      it 'wrong secret and verify = false should not raise JWT::DecodeError' do
+      it 'wrong secret and verify = false should not raise CUSTOMJWT::DecodeError' do
         expect do
-          JWT.decode data[alg], 'wrong_secret', false
+          CUSTOMJWT.decode data[alg], 'wrong_secret', false
         end.not_to raise_error
       end
     end
@@ -84,31 +84,31 @@ describe JWT do
   %w(RS256 RS384 RS512).each do |alg|
     context "alg: #{alg}" do
       it 'should generate a valid token' do
-        token = JWT.encode payload, data[:rsa_private], alg
+        token = CUSTOMJWT.encode payload, data[:rsa_private], alg
 
         expect(token).to eq data[alg]
       end
 
       it 'should decode a valid token' do
-        jwt_payload, header = JWT.decode data[alg], data[:rsa_public]
+        customjwt_payload, header = CUSTOMJWT.decode data[alg], data[:rsa_public]
 
         expect(header['alg']).to eq alg
-        expect(jwt_payload).to eq payload
+        expect(customjwt_payload).to eq payload
       end
 
-      it 'wrong key should raise JWT::DecodeError' do
+      it 'wrong key should raise CUSTOMJWT::DecodeError' do
         key = OpenSSL::PKey.read File.read(File.join(CERT_PATH, 'rsa-2048-wrong-public.pem'))
 
         expect do
-          JWT.decode data[alg], key
-        end.to raise_error JWT::DecodeError
+          CUSTOMJWT.decode data[alg], key
+        end.to raise_error CUSTOMJWT::DecodeError
       end
 
-      it 'wrong key and verify = false should not raise JWT::DecodeError' do
+      it 'wrong key and verify = false should not raise CUSTOMJWT::DecodeError' do
         key = OpenSSL::PKey.read File.read(File.join(CERT_PATH, 'rsa-2048-wrong-public.pem'))
 
         expect do
-          JWT.decode data[alg], key, false
+          CUSTOMJWT.decode data[alg], key, false
         end.not_to raise_error
       end
     end
@@ -117,34 +117,34 @@ describe JWT do
   %w(ES256 ES384 ES512).each do |alg|
     context "alg: #{alg}" do
       before(:each) do
-        data[alg] = JWT.encode payload, data["#{alg}_private"], alg
+        data[alg] = CUSTOMJWT.encode payload, data["#{alg}_private"], alg
       end
 
       let(:wrong_key) { OpenSSL::PKey.read(File.read(File.join(CERT_PATH, 'ec256-wrong-public.pem'))) }
 
       it 'should generate a valid token' do
-        jwt_payload, header = JWT.decode data[alg], data["#{alg}_public"]
+        customjwt_payload, header = CUSTOMJWT.decode data[alg], data["#{alg}_public"]
 
         expect(header['alg']).to eq alg
-        expect(jwt_payload).to eq payload
+        expect(customjwt_payload).to eq payload
       end
 
       it 'should decode a valid token' do
-        jwt_payload, header = JWT.decode data[alg], data["#{alg}_public"]
+        customjwt_payload, header = CUSTOMJWT.decode data[alg], data["#{alg}_public"]
 
         expect(header['alg']).to eq alg
-        expect(jwt_payload).to eq payload
+        expect(customjwt_payload).to eq payload
       end
 
-      it 'wrong key should raise JWT::DecodeError' do
+      it 'wrong key should raise CUSTOMJWT::DecodeError' do
         expect do
-          JWT.decode data[alg], wrong_key
-        end.to raise_error JWT::DecodeError
+          CUSTOMJWT.decode data[alg], wrong_key
+        end.to raise_error CUSTOMJWT::DecodeError
       end
 
-      it 'wrong key and verify = false should not raise JWT::DecodeError' do
+      it 'wrong key and verify = false should not raise CUSTOMJWT::DecodeError' do
         expect do
-          JWT.decode data[alg], wrong_key, false
+          CUSTOMJWT.decode data[alg], wrong_key, false
         end.not_to raise_error
       end
     end
@@ -153,38 +153,38 @@ describe JWT do
   context 'Invalid' do
     it 'algorithm should raise NotImplementedError' do
       expect do
-        JWT.encode payload, 'secret', 'HS255'
+        CUSTOMJWT.encode payload, 'secret', 'HS255'
       end.to raise_error NotImplementedError
     end
 
-    it 'ECDSA curve_name should raise JWT::IncorrectAlgorithm' do
+    it 'ECDSA curve_name should raise CUSTOMJWT::IncorrectAlgorithm' do
       key = OpenSSL::PKey::EC.new 'secp256k1'
       key.generate_key
 
       expect do
-        JWT.encode payload, key, 'ES256'
-      end.to raise_error JWT::IncorrectAlgorithm
+        CUSTOMJWT.encode payload, key, 'ES256'
+      end.to raise_error CUSTOMJWT::IncorrectAlgorithm
 
-      token = JWT.encode payload, data['ES256_private'], 'ES256'
+      token = CUSTOMJWT.encode payload, data['ES256_private'], 'ES256'
       key.private_key = nil
 
       expect do
-        JWT.decode token, key
-      end.to raise_error JWT::IncorrectAlgorithm
+        CUSTOMJWT.decode token, key
+      end.to raise_error CUSTOMJWT::IncorrectAlgorithm
     end
   end
 
   context 'Verify' do
     context 'algorithm' do
-      it 'should raise JWT::IncorrectAlgorithm on missmatch' do
-        token = JWT.encode payload, data[:secret], 'HS512'
+      it 'should raise CUSTOMJWT::IncorrectAlgorithm on missmatch' do
+        token = CUSTOMJWT.encode payload, data[:secret], 'HS512'
 
         expect do
-          JWT.decode token, data[:secret], true, algorithm: 'HS384'
-        end.to raise_error JWT::IncorrectAlgorithm
+          CUSTOMJWT.decode token, data[:secret], true, algorithm: 'HS384'
+        end.to raise_error CUSTOMJWT::IncorrectAlgorithm
 
         expect do
-          JWT.decode token, data[:secret], true, algorithm: 'HS512'
+          CUSTOMJWT.decode token, data[:secret], true, algorithm: 'HS512'
         end.not_to raise_error
       end
     end
@@ -196,18 +196,18 @@ describe JWT do
       let :token do
         payload.merge!(exp: exp)
 
-        JWT.encode payload, data[:secret]
+        CUSTOMJWT.encode payload, data[:secret]
       end
 
-      it 'old token should raise JWT::ExpiredSignature' do
+      it 'old token should raise CUSTOMJWT::ExpiredSignature' do
         expect do
-          JWT.decode token, data[:secret]
-        end.to raise_error JWT::ExpiredSignature
+          CUSTOMJWT.decode token, data[:secret]
+        end.to raise_error CUSTOMJWT::ExpiredSignature
       end
 
       it 'should handle leeway' do
         expect do
-          JWT.decode token, data[:secret], true, leeway: leeway
+          CUSTOMJWT.decode token, data[:secret], true, leeway: leeway
         end.not_to raise_error
       end
     end
@@ -219,54 +219,54 @@ describe JWT do
       let :token do
         payload.merge!(nbf: nbf)
 
-        JWT.encode payload, data[:secret]
+        CUSTOMJWT.encode payload, data[:secret]
       end
 
-      it 'future token should raise JWT::ImmatureSignature' do
+      it 'future token should raise CUSTOMJWT::ImmatureSignature' do
         expect do
-          JWT.decode token, data[:secret]
-        end.to raise_error JWT::ImmatureSignature
+          CUSTOMJWT.decode token, data[:secret]
+        end.to raise_error CUSTOMJWT::ImmatureSignature
       end
 
       it 'should handle leeway' do
         expect do
-          JWT.decode token, data[:secret], true, leeway: leeway
+          CUSTOMJWT.decode token, data[:secret], true, leeway: leeway
         end.not_to raise_error
       end
     end
 
     context 'issuer claim' do
-      let(:iss) { 'ruby-jwt-gem' }
-      let(:invalid_token) { JWT.encode payload, data[:secret] }
+      let(:iss) { 'ruby-customjwt-gem' }
+      let(:invalid_token) { CUSTOMJWT.encode payload, data[:secret] }
 
       let :token do
         iss_payload = payload.merge(iss: iss)
-        JWT.encode iss_payload, data[:secret]
+        CUSTOMJWT.encode iss_payload, data[:secret]
       end
 
-      it 'if verify_iss is set to false (default option) should not raise JWT::InvalidIssuerError' do
+      it 'if verify_iss is set to false (default option) should not raise CUSTOMJWT::InvalidIssuerError' do
         expect do
-          JWT.decode token, data[:secret], true, iss: iss
+          CUSTOMJWT.decode token, data[:secret], true, iss: iss
         end.not_to raise_error
       end
 
-      it 'invalid iss should raise JWT::InvalidIssuerError' do
+      it 'invalid iss should raise CUSTOMJWT::InvalidIssuerError' do
         expect do
-          JWT.decode token, data[:secret], true, iss: 'wrong-issuer', verify_iss: true
-        end.to raise_error JWT::InvalidIssuerError
+          CUSTOMJWT.decode token, data[:secret], true, iss: 'wrong-issuer', verify_iss: true
+        end.to raise_error CUSTOMJWT::InvalidIssuerError
       end
 
-      it 'with missing iss claim should raise JWT::InvalidIssuerError' do
-        missing_iss_claim_token = JWT.encode payload, data[:secret]
+      it 'with missing iss claim should raise CUSTOMJWT::InvalidIssuerError' do
+        missing_iss_claim_token = CUSTOMJWT.encode payload, data[:secret]
 
         expect do
-          JWT.decode missing_iss_claim_token, data[:secret], true, verify_iss: true, iss: iss
-        end.to raise_error(JWT::InvalidIssuerError, /received <none>/)
+          CUSTOMJWT.decode missing_iss_claim_token, data[:secret], true, verify_iss: true, iss: iss
+        end.to raise_error(CUSTOMJWT::InvalidIssuerError, /received <none>/)
       end
 
-      it 'valid iss should not raise JWT::InvalidIssuerError' do
+      it 'valid iss should not raise CUSTOMJWT::InvalidIssuerError' do
         expect do
-          JWT.decode token, data[:secret], true, iss: iss, verify_iss: true
+          CUSTOMJWT.decode token, data[:secret], true, iss: iss, verify_iss: true
         end.not_to raise_error
       end
     end
@@ -274,119 +274,119 @@ describe JWT do
     context 'issued at claim' do
       let(:iat) { Time.now.to_i }
       let(:new_payload) { payload.merge(iat: iat) }
-      let(:token) { JWT.encode new_payload, data[:secret] }
-      let(:invalid_token) { JWT.encode new_payload.merge('iat' => iat + 60), data[:secret] }
+      let(:token) { CUSTOMJWT.encode new_payload, data[:secret] }
+      let(:invalid_token) { CUSTOMJWT.encode new_payload.merge('iat' => iat + 60), data[:secret] }
       let(:leeway) { 30 }
 
-      it 'invalid iat should raise JWT::InvalidIatError' do
+      it 'invalid iat should raise CUSTOMJWT::InvalidIatError' do
         expect do
-          JWT.decode invalid_token, data[:secret], true, verify_iat: true
-        end.to raise_error JWT::InvalidIatError
+          CUSTOMJWT.decode invalid_token, data[:secret], true, verify_iat: true
+        end.to raise_error CUSTOMJWT::InvalidIatError
       end
 
       it 'should accept leeway' do
         expect do
-          JWT.decode invalid_token, data[:secret], true, verify_iat: true, leeway: 70
+          CUSTOMJWT.decode invalid_token, data[:secret], true, verify_iat: true, leeway: 70
         end.to_not raise_error
       end
 
-      it 'valid iat should not raise JWT::InvalidIatError' do
+      it 'valid iat should not raise CUSTOMJWT::InvalidIatError' do
         expect do
-          JWT.decode token, data[:secret], true, verify_iat: true
+          CUSTOMJWT.decode token, data[:secret], true, verify_iat: true
         end.to_not raise_error
       end
     end
 
     context 'audience claim' do
-      let(:simple_aud) { 'ruby-jwt-audience' }
-      let(:array_aud) { %w(ruby-jwt-aud test-aud ruby-ruby-ruby) }
+      let(:simple_aud) { 'ruby-customjwt-audience' }
+      let(:array_aud) { %w(ruby-customjwt-aud test-aud ruby-ruby-ruby) }
 
       let :simple_token do
         new_payload = payload.merge('aud' => simple_aud)
-        JWT.encode new_payload, data[:secret]
+        CUSTOMJWT.encode new_payload, data[:secret]
       end
 
       let :array_token do
         new_payload = payload.merge('aud' => array_aud)
-        JWT.encode new_payload, data[:secret]
+        CUSTOMJWT.encode new_payload, data[:secret]
       end
 
-      it 'invalid aud should raise JWT::InvalidAudError' do
+      it 'invalid aud should raise CUSTOMJWT::InvalidAudError' do
         expect do
-          JWT.decode simple_token, data[:secret], true, aud: 'wrong audience', verify_aud: true
-        end.to raise_error JWT::InvalidAudError
+          CUSTOMJWT.decode simple_token, data[:secret], true, aud: 'wrong audience', verify_aud: true
+        end.to raise_error CUSTOMJWT::InvalidAudError
 
         expect do
-          JWT.decode array_token, data[:secret], true, aud: %w(wrong audience), verify_aud: true
-        end.to raise_error JWT::InvalidAudError
+          CUSTOMJWT.decode array_token, data[:secret], true, aud: %w(wrong audience), verify_aud: true
+        end.to raise_error CUSTOMJWT::InvalidAudError
       end
 
-      it 'valid aud should not raise JWT::InvalidAudError' do
+      it 'valid aud should not raise CUSTOMJWT::InvalidAudError' do
         expect do
-          JWT.decode simple_token, data[:secret], true, 'aud' => simple_aud, :verify_aud => true
+          CUSTOMJWT.decode simple_token, data[:secret], true, 'aud' => simple_aud, :verify_aud => true
         end.to_not raise_error
 
         expect do
-          JWT.decode array_token, data[:secret], true, 'aud' => array_aud.first, :verify_aud => true
+          CUSTOMJWT.decode array_token, data[:secret], true, 'aud' => array_aud.first, :verify_aud => true
         end.to_not raise_error
       end
     end
 
     context 'subject claim' do
-      let(:sub) { 'ruby jwt subject' }
+      let(:sub) { 'ruby customjwt subject' }
 
       let :token do
         new_payload = payload.merge('sub' => sub)
-        JWT.encode new_payload, data[:secret]
+        CUSTOMJWT.encode new_payload, data[:secret]
       end
 
       let :invalid_token do
         invalid_payload = payload.merge('sub' => 'we are not the druids you are looking for')
-        JWT.encode invalid_payload, data[:secret]
+        CUSTOMJWT.encode invalid_payload, data[:secret]
       end
 
-      it 'invalid sub should raise JWT::InvalidSubError' do
+      it 'invalid sub should raise CUSTOMJWT::InvalidSubError' do
         expect do
-          JWT.decode invalid_token, data[:secret], true, sub: sub, verify_sub: true
-        end.to raise_error JWT::InvalidSubError
+          CUSTOMJWT.decode invalid_token, data[:secret], true, sub: sub, verify_sub: true
+        end.to raise_error CUSTOMJWT::InvalidSubError
       end
 
-      it 'valid sub should not raise JWT::InvalidSubError' do
+      it 'valid sub should not raise CUSTOMJWT::InvalidSubError' do
         expect do
-          JWT.decode token, data[:secret], true, 'sub' => sub, :verify_sub => true
+          CUSTOMJWT.decode token, data[:secret], true, 'sub' => sub, :verify_sub => true
         end.to_not raise_error
       end
     end
 
-    context 'jwt id claim' do
+    context 'customjwt id claim' do
       let :jti do
         payload.merge('jti' => 'some-random-uuid-or-whatever')
       end
 
-      let(:token) { JWT.encode jti, data[:secret] }
-      let(:invalid_token) { JWT.encode payload, data[:secret] }
+      let(:token) { CUSTOMJWT.encode jti, data[:secret] }
+      let(:invalid_token) { CUSTOMJWT.encode payload, data[:secret] }
 
-      it 'missing jti should raise JWT::InvalidJtiError' do
+      it 'missing jti should raise CUSTOMJWT::InvalidJtiError' do
         expect do
-          JWT.decode invalid_token, data[:secret], true, verify_jti: true
-        end.to raise_error JWT::InvalidJtiError
+          CUSTOMJWT.decode invalid_token, data[:secret], true, verify_jti: true
+        end.to raise_error CUSTOMJWT::InvalidJtiError
       end
 
-      it 'valid jti should not raise JWT::InvalidJtiError' do
+      it 'valid jti should not raise CUSTOMJWT::InvalidJtiError' do
         expect do
-          JWT.decode token, data[:secret], true, verify_jti: true
+          CUSTOMJWT.decode token, data[:secret], true, verify_jti: true
         end.to_not raise_error
       end
 
-      it 'false proc should raise JWT::InvalidJtiError' do
+      it 'false proc should raise CUSTOMJWT::InvalidJtiError' do
         expect do
-          JWT.decode token, data[:secret], true, verify_jti: lambda { |jti| false }
-        end.to raise_error JWT::InvalidJtiError
+          CUSTOMJWT.decode token, data[:secret], true, verify_jti: lambda { |jti| false }
+        end.to raise_error CUSTOMJWT::InvalidJtiError
       end
 
-      it 'true proc should not raise JWT::InvalidJtiError' do
+      it 'true proc should not raise CUSTOMJWT::InvalidJtiError' do
         expect do
-          JWT.decode invalid_token, data[:secret], true, verify_jti: lambda { |jti| true }
+          CUSTOMJWT.decode invalid_token, data[:secret], true, verify_jti: lambda { |jti| true }
         end.to_not raise_error
       end
     end
@@ -395,24 +395,24 @@ describe JWT do
   context 'Base64' do
     it 'urlsafe replace + / with - _' do
       allow(Base64).to receive(:encode64) { 'string+with/non+url-safe/characters_' }
-      expect(JWT.base64url_encode('foo')).to eq('string-with_non-url-safe_characters_')
+      expect(CUSTOMJWT.base64url_encode('foo')).to eq('string-with_non-url-safe_characters_')
     end
   end
 
   describe 'secure comparison' do
     it 'returns true if strings are equal' do
-      expect(JWT.secure_compare('Foo', 'Foo')).to eq true
+      expect(CUSTOMJWT.secure_compare('Foo', 'Foo')).to eq true
     end
 
     it 'returns false if either input is nil or empty' do
       [nil, ''].each do |bad|
-        expect(JWT.secure_compare(bad, 'Foo')).to eq false
-        expect(JWT.secure_compare('Foo', bad)).to eq false
+        expect(CUSTOMJWT.secure_compare(bad, 'Foo')).to eq false
+        expect(CUSTOMJWT.secure_compare('Foo', bad)).to eq false
       end
     end
 
     it 'retuns false if the strings are different' do
-      expect(JWT.secure_compare('Foo', 'Bar')).to eq false
+      expect(CUSTOMJWT.secure_compare('Foo', 'Bar')).to eq false
     end
   end
 end

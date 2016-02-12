@@ -1,4 +1,4 @@
-jwt.gemspec
+customjwt.gemspec
 pkg
 Gemfile.lock
 coverage/

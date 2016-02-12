@@ -1,23 +1,23 @@
-# JWT
+# CUSTOMJWT
 
-[![Build Status](https://travis-ci.org/jwt/ruby-jwt.svg)](https://travis-ci.org/jwt/ruby-jwt)
-[![Code Climate](https://codeclimate.com/github/jwt/ruby-jwt/badges/gpa.svg)](https://codeclimate.com/github/jwt/ruby-jwt)
-[![Test Coverage](https://codeclimate.com/github/jwt/ruby-jwt/badges/coverage.svg)](https://codeclimate.com/github/jwt/ruby-jwt/coverage)
-[![Issue Count](https://codeclimate.com/github/jwt/ruby-jwt/badges/issue_count.svg)](https://codeclimate.com/github/jwt/ruby-jwt)
+[![Build Status](https://travis-ci.org/customjwt/ruby-customjwt.svg)](https://travis-ci.org/customjwt/ruby-customjwt)
+[![Code Climate](https://codeclimate.com/github/customjwt/ruby-customjwt/badges/gpa.svg)](https://codeclimate.com/github/customjwt/ruby-customjwt)
+[![Test Coverage](https://codeclimate.com/github/customjwt/ruby-customjwt/badges/coverage.svg)](https://codeclimate.com/github/customjwt/ruby-customjwt/coverage)
+[![Issue Count](https://codeclimate.com/github/customjwt/ruby-customjwt/badges/issue_count.svg)](https://codeclimate.com/github/customjwt/ruby-customjwt)
 
-A pure ruby implementation of the [RFC 7519 OAuth JSON Web Token (JWT)](https://tools.ietf.org/html/rfc7519) standard.
+A pure ruby implementation of the [RFC 7519 OAuth JSON Web Token (CUSTOMJWT)](https://tools.ietf.org/html/rfc7519) standard.
 
-If you have further questions releated to development or usage, join us: [ruby-jwt google group](https://groups.google.com/forum/#!forum/ruby-jwt).
+If you have further questions releated to development or usage, join us: [ruby-customjwt google group](https://groups.google.com/forum/#!forum/ruby-customjwt).
 
 ## Installing
 
 ```bash
-sudo gem install jwt
+sudo gem install customjwt
 ```
 
 ## Algorithms and Usage
 
-The JWT spec supports NONE, HMAC, RSASSA, ECDSA and RSASSA-PSS algorithms for cryptographic signing. Currently the jwt gem supports NONE, HMAC, RSASSA and ECDSA. If you are using cryptographic signing, you need to specify the algorithm in the options hash whenever you call JWT.decode to ensure that an attacker [cannot bypass the algorithm verification step](https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/).
+The CUSTOMJWT spec supports NONE, HMAC, RSASSA, ECDSA and RSASSA-PSS algorithms for cryptographic signing. Currently the customjwt gem supports NONE, HMAC, RSASSA and ECDSA. If you are using cryptographic signing, you need to specify the algorithm in the options hash whenever you call CUSTOMJWT.decode to ensure that an attacker [cannot bypass the algorithm verification step](https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/).
 
 See: [ JSON Web Algorithms (JWA) 3.1. "alg" (Algorithm) Header Parameter Values for JWS](https://tools.ietf.org/html/rfc7518#section-3.1)
 
@@ -26,23 +26,23 @@ See: [ JSON Web Algorithms (JWA) 3.1. "alg" (Algorithm) Header Parameter Values 
 * none - unsigned token
 
 ```ruby
-require 'jwt'
+require 'customjwt'
 
 payload = {:data => 'test'}
 
 # IMPORTANT: set nil as password parameter
-token = JWT.encode payload, nil, 'none'
+token = CUSTOMJWT.encode payload, nil, 'none'
 
 # eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJ0ZXN0IjoiZGF0YSJ9.
 puts token
 
 # Set password to nil and validation to false otherwise this won't work
-decoded_token = JWT.decode token, nil, false
+decoded_token = CUSTOMJWT.decode token, nil, false
 
 # Array
 # [
 #   {"data"=>"test"}, # payload
-#   {"typ"=>"JWT", "alg"=>"none"} # header
+#   {"typ"=>"CUSTOMJWT", "alg"=>"none"} # header
 # ]
 puts decoded_token
 ```
@@ -56,17 +56,17 @@ puts decoded_token
 ```ruby
 hmac_secret = 'my$ecretK3y'
 
-token = JWT.encode payload, hmac_secret, 'HS256'
+token = CUSTOMJWT.encode payload, hmac_secret, 'HS256'
 
 # eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0ZXN0IjoiZGF0YSJ9._sLPAGP-IXgho8BkMGQ86N2mah7vDyn0L5hOR4UkfoI
 puts token
 
-decoded_token = JWT.decode token, hmac_secret, true, { :algorithm => 'HS256' }
+decoded_token = CUSTOMJWT.decode token, hmac_secret, true, { :algorithm => 'HS256' }
 
 # Array
 # [
 #   {"data"=>"test"}, # payload
-#   {"typ"=>"JWT", "alg"=>"HS256"} # header
+#   {"typ"=>"CUSTOMJWT", "alg"=>"HS256"} # header
 # ]
 puts decoded_token
 ```
@@ -81,17 +81,17 @@ puts decoded_token
 rsa_private = OpenSSL::PKey::RSA.generate 2048
 rsa_public = rsa_private.public_key
 
-token = JWT.encode payload, rsa_private, 'RS256'
+token = CUSTOMJWT.encode payload, rsa_private, 'RS256'
 
 # eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ0ZXN0IjoiZGF0YSJ9.c2FynXNyi6_PeKxrDGxfS3OLwQ8lTDbWBWdq7oMviCy2ZfFpzvW2E_odCWJrbLof-eplHCsKzW7MGAntHMALXgclm_Cs9i2Exi6BZHzpr9suYkrhIjwqV1tCgMBCQpdeMwIq6SyKVjgH3L51ivIt0-GDDPDH1Rcut3jRQzp3Q35bg3tcI2iVg7t3Msvl9QrxXAdYNFiS5KXH22aJZ8X_O2HgqVYBXfSB1ygTYUmKTIIyLbntPQ7R22rFko1knGWOgQCoYXwbtpuKRZVFrxX958L2gUWgb4jEQNf3fhOtkBm1mJpj-7BGst00o8g_3P2zHy-3aKgpPo1XlKQGjRrrxA
 puts token
 
-decoded_token = JWT.decode token, rsa_public, true, { :algorithm => 'RS256' }
+decoded_token = CUSTOMJWT.decode token, rsa_public, true, { :algorithm => 'RS256' }
 
 # Array
 # [
 #   {"data"=>"test"}, # payload
-#   {"typ"=>"JWT", "alg"=>"RS256"} # header
+#   {"typ"=>"CUSTOMJWT", "alg"=>"RS256"} # header
 # ]
 puts decoded_token
 ```
@@ -108,17 +108,17 @@ ecdsa_key.generate_key
 ecdsa_public = OpenSSL::PKey::EC.new ecdsa_key
 ecdsa_public.private_key = nil
 
-token = JWT.encode payload, ecdsa_key, 'ES256'
+token = CUSTOMJWT.encode payload, ecdsa_key, 'ES256'
 
 # eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJ0ZXN0IjoiZGF0YSJ9.MEQCIAtShrxRwP1L9SapqaT4f7hajDJH4t_rfm-YlZcNDsBNAiB64M4-JRfyS8nRMlywtQ9lHbvvec9U54KznzOe1YxTyA
 puts token
 
-decoded_token = JWT.decode token, ecdsa_public, true, { :algorithm => 'ES256' }
+decoded_token = CUSTOMJWT.decode token, ecdsa_public, true, { :algorithm => 'ES256' }
 
 # Array
 # [
 #    {"test"=>"data"}, # payload
-#    {"typ"=>"JWT", "alg"=>"ES256"} # header
+#    {"typ"=>"CUSTOMJWT", "alg"=>"ES256"} # header
 # ]
 puts decoded_token
 ```
@@ -129,13 +129,13 @@ Not implemented.
 
 ## Support for reserved claim names
 JSON Web Token defines some reserved claim names and defines how they should be
-used. JWT supports these reserved claim names:
+used. CUSTOMJWT supports these reserved claim names:
 
  - 'exp' (Expiration Time) Claim
  - 'nbf' (Not Before Time) Claim
  - 'iss' (Issuer) Claim
  - 'aud' (Audience) Claim
- - 'jti' (JWT ID) Claim
+ - 'jti' (CUSTOMJWT ID) Claim
  - 'iat' (Issued At) Claim
  - 'sub' (Subject) Claim
 
@@ -143,7 +143,7 @@ used. JWT supports these reserved claim names:
 
 From [Oauth JSON Web Token 4.1.4. "exp" (Expiration Time) Claim](https://tools.ietf.org/html/rfc7519#section-4.1.4):
 
-> The `exp` (expiration time) claim identifies the expiration time on or after which the JWT MUST NOT be accepted for processing. The processing of the `exp` claim requires that the current date/time MUST be before the expiration date/time listed in the `exp` claim. Implementers MAY provide for some small `leeway`, usually no more than a few minutes, to account for clock skew. Its value MUST be a number containing a ***NumericDate*** value. Use of this claim is OPTIONAL.
+> The `exp` (expiration time) claim identifies the expiration time on or after which the CUSTOMJWT MUST NOT be accepted for processing. The processing of the `exp` claim requires that the current date/time MUST be before the expiration date/time listed in the `exp` claim. Implementers MAY provide for some small `leeway`, usually no more than a few minutes, to account for clock skew. Its value MUST be a number containing a ***NumericDate*** value. Use of this claim is OPTIONAL.
 
 **Handle Expiration Claim**
 
@@ -151,11 +151,11 @@ From [Oauth JSON Web Token 4.1.4. "exp" (Expiration Time) Claim](https://tools.i
 exp = Time.now.to_i + 4 * 3600
 exp_payload = { :data => 'data', :exp => exp }
 
-token = JWT.encode exp_payload, hmac_secret, 'HS256'
+token = CUSTOMJWT.encode exp_payload, hmac_secret, 'HS256'
 
 begin
-  decoded_token = JWT.decode token, hmac_secret, true, { :algorithm => 'HS256' }
-rescue JWT::ExpiredSignature
+  decoded_token = CUSTOMJWT.decode token, hmac_secret, true, { :algorithm => 'HS256' }
+rescue CUSTOMJWT::ExpiredSignature
   # Handle expired token, e.g. logout user or deny access
 end
 ```
@@ -169,12 +169,12 @@ leeway = 30 # seconds
 exp_payload = { :data => 'data', :exp => exp }
 
 # build expired token
-token = JWT.encode exp_payload, hmac_secret, 'HS256'
+token = CUSTOMJWT.encode exp_payload, hmac_secret, 'HS256'
 
 begin
   # add leeway to ensure the token is still accepted
-  decoded_token = JWT.decode token, hmac_secret, true, { :leeway => leeway, :algorithm => 'HS256' }
-rescue JWT::ExpiredSignature
+  decoded_token = CUSTOMJWT.decode token, hmac_secret, true, { :leeway => leeway, :algorithm => 'HS256' }
+rescue CUSTOMJWT::ExpiredSignature
   # Handle expired token, e.g. logout user or deny access
 end
 ```
@@ -183,7 +183,7 @@ end
 
 From [Oauth JSON Web Token 4.1.5. "nbf" (Not Before) Claim](https://tools.ietf.org/html/rfc7519#section-4.1.5):
 
-> The `nbf` (not before) claim identifies the time before which the JWT MUST NOT be accepted for processing. The processing of the `nbf` claim requires that the current date/time MUST be after or equal to the not-before date/time listed in the `nbf` claim. Implementers MAY provide for some small `leeway`, usually no more than a few minutes, to account for clock skew. Its value MUST be a number containing a ***NumericDate*** value. Use of this claim is OPTIONAL.
+> The `nbf` (not before) claim identifies the time before which the CUSTOMJWT MUST NOT be accepted for processing. The processing of the `nbf` claim requires that the current date/time MUST be after or equal to the not-before date/time listed in the `nbf` claim. Implementers MAY provide for some small `leeway`, usually no more than a few minutes, to account for clock skew. Its value MUST be a number containing a ***NumericDate*** value. Use of this claim is OPTIONAL.
 
 **Handle Not Before Claim**
 
@@ -191,11 +191,11 @@ From [Oauth JSON Web Token 4.1.5. "nbf" (Not Before) Claim](https://tools.ietf.o
 nbf = Time.now.to_i - 3600
 nbf_payload = { :data => 'data', :nbf => nbf }
 
-token = JWT.encode nbf_payload, hmac_secret, 'HS256'
+token = CUSTOMJWT.encode nbf_payload, hmac_secret, 'HS256'
 
 begin
-  decoded_token = JWT.decode token, hmac_secret, true, { :algorithm => 'HS256' }
-rescue JWT::ImmatureSignature
+  decoded_token = CUSTOMJWT.decode token, hmac_secret, true, { :algorithm => 'HS256' }
+rescue CUSTOMJWT::ImmatureSignature
   # Handle invalid token, e.g. logout user or deny access
 end
 ```
@@ -209,12 +209,12 @@ leeway = 30
 nbf_payload = { :data => 'data', :nbf => nbf }
 
 # build expired token
-token = JWT.encode nbf_payload, hmac_secret, 'HS256'
+token = CUSTOMJWT.encode nbf_payload, hmac_secret, 'HS256'
 
 begin
   # add leeway to ensure the token is valid
-  decoded_token = JWT.decode token, hmac_secret, true, { :leeway => leeway, :algorithm => 'HS256' }
-rescue JWT::ImmatureSignature
+  decoded_token = CUSTOMJWT.decode token, hmac_secret, true, { :leeway => leeway, :algorithm => 'HS256' }
+rescue CUSTOMJWT::ImmatureSignature
   # Handle invalid token, e.g. logout user or deny access
 end
 ```
@@ -223,18 +223,18 @@ end
 
 From [Oauth JSON Web Token 4.1.1. "iss" (Issuer) Claim](https://tools.ietf.org/html/rfc7519#section-4.1.1):
 
-> The `iss` (issuer) claim identifies the principal that issued the JWT. The processing of this claim is generally application specific. The `iss` value is a case-sensitive string containing a ***StringOrURI*** value. Use of this claim is OPTIONAL.
+> The `iss` (issuer) claim identifies the principal that issued the CUSTOMJWT. The processing of this claim is generally application specific. The `iss` value is a case-sensitive string containing a ***StringOrURI*** value. Use of this claim is OPTIONAL.
 
 ```ruby
 iss = 'My Awesome Company Inc. or https://my.awesome.website/'
 iss_payload = { :data => 'data', :iss => iss }
 
-token = JWT.encode iss_payload, hmac_secret, 'HS256'
+token = CUSTOMJWT.encode iss_payload, hmac_secret, 'HS256'
 
 begin
   # Add iss to the validation to check if the token has been manipulated
-  decoded_token = JWT.decode token, hmac_secret, true, { :iss => iss, :verify_iss => true, :algorithm => 'HS256' }
-rescue JWT::InvalidIssuerError
+  decoded_token = CUSTOMJWT.decode token, hmac_secret, true, { :iss => iss, :verify_iss => true, :algorithm => 'HS256' }
+rescue CUSTOMJWT::InvalidIssuerError
   # Handle invalid token, e.g. logout user or deny access
 end
 ```
@@ -243,28 +243,28 @@ end
 
 From [Oauth JSON Web Token 4.1.3. "aud" (Audience) Claim](https://tools.ietf.org/html/rfc7519#section-4.1.3):
 
-> The `aud` (audience) claim identifies the recipients that the JWT is intended for. Each principal intended to process the JWT MUST identify itself with a value in the audience claim. If the principal processing the claim does not identify itself with a value in the `aud` claim when this claim is present, then the JWT MUST be rejected. In the general case, the `aud` value is an array of case-sensitive strings, each containing a ***StringOrURI*** value. In the special case when the JWT has one audience, the `aud` value MAY be a single case-sensitive string containing a ***StringOrURI*** value. The interpretation of audience values is generally application specific. Use of this claim is OPTIONAL.
+> The `aud` (audience) claim identifies the recipients that the CUSTOMJWT is intended for. Each principal intended to process the CUSTOMJWT MUST identify itself with a value in the audience claim. If the principal processing the claim does not identify itself with a value in the `aud` claim when this claim is present, then the CUSTOMJWT MUST be rejected. In the general case, the `aud` value is an array of case-sensitive strings, each containing a ***StringOrURI*** value. In the special case when the CUSTOMJWT has one audience, the `aud` value MAY be a single case-sensitive string containing a ***StringOrURI*** value. The interpretation of audience values is generally application specific. Use of this claim is OPTIONAL.
 
 ```ruby
 aud = ['Young', 'Old']
 aud_payload = { :data => 'data', :aud => aud }
 
-token = JWT.encode aud_payload, hmac_secret, 'HS256'
+token = CUSTOMJWT.encode aud_payload, hmac_secret, 'HS256'
 
 begin
   # Add aud to the validation to check if the token has been manipulated
-  decoded_token = JWT.decode token, hmac_secret, true, { :aud => aud, :verify_aud => true, :algorithm => 'HS256' }
-rescue JWT::InvalidAudError
+  decoded_token = CUSTOMJWT.decode token, hmac_secret, true, { :aud => aud, :verify_aud => true, :algorithm => 'HS256' }
+rescue CUSTOMJWT::InvalidAudError
   # Handle invalid token, e.g. logout user or deny access
   puts 'Audience Error'
 end
 ```
 
-### JWT ID Claim
+### CUSTOMJWT ID Claim
 
-From [Oauth JSON Web Token 4.1.7. "jti" (JWT ID) Claim](https://tools.ietf.org/html/rfc7519#section-4.1.7):
+From [Oauth JSON Web Token 4.1.7. "jti" (CUSTOMJWT ID) Claim](https://tools.ietf.org/html/rfc7519#section-4.1.7):
 
-> The `jti` (JWT ID) claim provides a unique identifier for the JWT. The identifier value MUST be assigned in a manner that ensures that there is a negligible probability that the same value will be accidentally assigned to a different data object; if the application uses multiple issuers, collisions MUST be prevented among values produced by different issuers as well. The `jti` claim can be used to prevent the JWT from being replayed. The `jti` value is a case-sensitive string. Use of this claim is OPTIONAL.
+> The `jti` (CUSTOMJWT ID) claim provides a unique identifier for the CUSTOMJWT. The identifier value MUST be assigned in a manner that ensures that there is a negligible probability that the same value will be accidentally assigned to a different data object; if the application uses multiple issuers, collisions MUST be prevented among values produced by different issuers as well. The `jti` claim can be used to prevent the CUSTOMJWT from being replayed. The `jti` value is a case-sensitive string. Use of this claim is OPTIONAL.
 
 ```ruby
 # Use the secret and iat to create a unique key per request to prevent replay attacks
@@ -272,14 +272,14 @@ jti_raw = [hmac_secret, iat].join(':').to_s
 jti = Digest::MD5.hexdigest(jti_raw)
 jti_payload = { :data => 'data', :iat => iat, :jti => jti }
 
-token = JWT.encode jti_payload, hmac_secret, 'HS256'
+token = CUSTOMJWT.encode jti_payload, hmac_secret, 'HS256'
 
 begin
   # If :verify_jti is true, validation will pass if a JTI is present
-  #decoded_token = JWT.decode token, hmac_secret, true, { :verify_jti => true, :algorithm => 'HS256' }
+  #decoded_token = CUSTOMJWT.decode token, hmac_secret, true, { :verify_jti => true, :algorithm => 'HS256' }
   # Alternatively, pass a proc with your own code to check if the JTI has already been used
-  decoded_token = JWT.decode token, hmac_secret, true, { :verify_jti => proc { |jti| my_validation_method(jti) }, :algorithm => 'HS256' }
-rescue JWT::InvalidJtiError
+  decoded_token = CUSTOMJWT.decode token, hmac_secret, true, { :verify_jti => proc { |jti| my_validation_method(jti) }, :algorithm => 'HS256' }
+rescue CUSTOMJWT::InvalidJtiError
   # Handle invalid token, e.g. logout user or deny access
   puts 'Error'
 end
@@ -290,18 +290,18 @@ end
 
 From [Oauth JSON Web Token 4.1.6. "iat" (Issued At) Claim](https://tools.ietf.org/html/rfc7519#section-4.1.6):
 
-> The `iat` (issued at) claim identifies the time at which the JWT was issued. This claim can be used to determine the age of the JWT. Its value MUST be a number containing a ***NumericDate*** value. Use of this claim is OPTIONAL.
+> The `iat` (issued at) claim identifies the time at which the CUSTOMJWT was issued. This claim can be used to determine the age of the CUSTOMJWT. Its value MUST be a number containing a ***NumericDate*** value. Use of this claim is OPTIONAL.
 
 ```ruby
 iat = Time.now.to_i
 iat_payload = { :data => 'data', :iat => iat }
 
-token = JWT.encode iat_payload, hmac_secret, 'HS256'
+token = CUSTOMJWT.encode iat_payload, hmac_secret, 'HS256'
 
 begin
   # Add iat to the validation to check if the token has been manipulated
-  decoded_token = JWT.decode token, hmac_secret, true, { :verify_iat => true, :algorithm => 'HS256' }
-rescue JWT::InvalidIatError
+  decoded_token = CUSTOMJWT.decode token, hmac_secret, true, { :verify_iat => true, :algorithm => 'HS256' }
+rescue CUSTOMJWT::InvalidIatError
   # Handle invalid token, e.g. logout user or deny access
 end
 ```
@@ -310,18 +310,18 @@ end
 
 From [Oauth JSON Web Token 4.1.2. "sub" (Subject) Claim](https://tools.ietf.org/html/rfc7519#section-4.1.2):
 
-> The `sub` (subject) claim identifies the principal that is the subject of the JWT. The Claims in a JWT are normally statements about the subject. The subject value MUST either be scoped to be locally unique in the context of the issuer or be globally unique. The processing of this claim is generally application specific. The sub value is a case-sensitive string containing a ***StringOrURI*** value. Use of this claim is OPTIONAL.
+> The `sub` (subject) claim identifies the principal that is the subject of the CUSTOMJWT. The Claims in a CUSTOMJWT are normally statements about the subject. The subject value MUST either be scoped to be locally unique in the context of the issuer or be globally unique. The processing of this claim is generally application specific. The sub value is a case-sensitive string containing a ***StringOrURI*** value. Use of this claim is OPTIONAL.
 
 ```ruby
 sub = 'Subject'
 sub_payload = { :data => 'data', :sub => sub }
 
-token = JWT.encode sub_payload, hmac_secret, 'HS256'
+token = CUSTOMJWT.encode sub_payload, hmac_secret, 'HS256'
 
 begin
   # Add sub to the validation to check if the token has been manipulated
-  decoded_token = JWT.decode token, hmac_secret, true, { 'sub' => sub, :verify_sub => true, :algorithm => 'HS256' }
-rescue JWT::InvalidSubError
+  decoded_token = CUSTOMJWT.decode token, hmac_secret, true, { 'sub' => sub, :verify_sub => true, :algorithm => 'HS256' }
+rescue CUSTOMJWT::InvalidSubError
   # Handle invalid token, e.g. logout user or deny access
 end
 ```
